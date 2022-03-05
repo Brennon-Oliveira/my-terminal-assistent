@@ -1,0 +1,28 @@
+{
+  "name": "My-Terminal-Assistent",
+  "version": "1.0.0",
+  "description": "Assistente para terminal",
+  "main": "bin/index.js",
+  "bin": {
+    "myta": "bin/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node . git"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Brennon-Oliveira/my-terminal-assistent.git"
+  },
+  "author": "Brennon Gabriel de Oliveira",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Brennon-Oliveira/my-terminal-assistent/issues"
+  },
+  "homepage": "https://github.com/Brennon-Oliveira/my-terminal-assistent#readme",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "colors": "^1.4.0",
+    "outdent": "^0.8.0"
+  }
+}
