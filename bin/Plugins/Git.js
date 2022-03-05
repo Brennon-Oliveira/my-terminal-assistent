@@ -97,18 +97,18 @@ export default class Git {
 
         let commit = await exec(`git commit -m "${commitMessage}"`)
 
-        if(commit.stderr){
-            error("Houve um erro ao realizar o commit")
-        } else if(commit.stdout){
-            if(false){
+        // if(commit.stderr){
+        //     error("Houve um erro ao realizar o commit")
+        // } else if(commit.stdout){
+        //     if(false){
 
-            } else {
-                success(`
-                Commit realizado com sucesso:
-                    ${commit.stdout}
-                `)
-            }
-        }
+        //     } else {
+        //         success(`
+        //         Commit realizado com sucesso:
+        //             ${commit.stdout}
+        //         `)
+        //     }
+        // }
 
         if(commit.stderr){
             error("Houve um erro ao realizar o commit")
