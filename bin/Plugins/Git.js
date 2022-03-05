@@ -123,7 +123,7 @@ export default class Git {
                 `)
             } else {
                 if(flags.p){
-                    let pushed = await exec("git push -u")
+                    let pushed = await exec("git push")
                     if(pushed.stdout){
                         success(`
                         Commit realizado com sucesso:
@@ -136,7 +136,7 @@ export default class Git {
                         error(`
                         Commit realizado com sucesso:
                             ${commit.stdout}
-                        Mas falha ao realizar o "git push -u":
+                        Mas falha ao realizar o "git push":
                             ${pushed.stderr}
                         `)
                     }
