@@ -112,7 +112,7 @@ export default class Git {
             } else {
                 if(flags.p){
                     let pushed = await exec("git push")
-                    if(pushed.stdout){
+                    if(pushed.stdout || pushed.stderr.includes("To github.com") ){
                         success(`
                         Commit realizado com sucesso:
                             ${commit.stdout}
