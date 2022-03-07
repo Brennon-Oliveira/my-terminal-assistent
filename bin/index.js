@@ -41,7 +41,7 @@ import { SETTINGS } from "./Consts.js";
         process.exit(0)
     }
     if(args[0] === "config"){
-        let config = await new Config()
+        let config = new Config()
         
         if(args.length > 1){
             await config.controller(args.slice(1)[0], args.slice(2))
@@ -51,12 +51,11 @@ import { SETTINGS } from "./Consts.js";
         process.exit(0)
     }
     let Plugins = await Utils.exec(`ls "${process.cwd()}/bin/Plugins"`)
-    Plugins = Plugins.stdout.split("\n").filter(plugin => plugin.includes(".js"))
-    Plugins = Plugins.map(plugin => plugin.replace(".js", ""))
+    Plugins = Plugins.stdout.split("\n");
     if(Plugins.length > 0){
         let command = Plugins.find(plugin => plugin.toLowerCase().includes(args[0]))
         if(command){
-            const plugin = await import(`./Plugins/${command}.js`)
+            const plugin = await import(`./Plugins/${command}/${command}.js`)
             if(args.length > 1){
                 await new plugin.default().controller(args.slice(1)[0], args.slice(2))
             } else {

@@ -1,4 +1,4 @@
-import Utils from "../Utils.js";
+import Utils from "../../Utils.js";
 const { help, exec, error, warning, message, success, getFlags, getSettings, useTemplate, question } = Utils;
 
 export default class Git {
