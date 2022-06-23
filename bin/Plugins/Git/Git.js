@@ -197,7 +197,7 @@ export default class Git {
                     {
                         name: "-a",
                         description:
-                            'Realiza "git pull add ." antes de realizar o commit',
+                            'Realiza "git add ." antes de realizar o commit',
                     },
                     {
                         name: "-p",

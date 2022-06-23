@@ -2,7 +2,6 @@
 
 import fs from "fs";
 import Utils from "./Utils.js";
-// import Git from './Git.js';
 import Config from "./Config.js";
 import { SETTINGS } from "./Consts.js";
 
@@ -10,7 +9,7 @@ import { SETTINGS } from "./Consts.js";
     if (!fs.existsSync(SETTINGS)) {
         Utils.clear();
         Utils.warning(`
-        Por favor, antes de prosseguir, faça sus configurações básicas
+        Por favor, antes de prosseguir, faça suas configurações básicas
         `);
         await new Config().init([], true);
         Utils.message(`
