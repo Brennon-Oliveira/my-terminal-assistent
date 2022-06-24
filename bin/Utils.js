@@ -1,8 +1,7 @@
 
 import {promisify} from 'util';
 import readLine from 'readline';
-import childProcess from 'child_process';
-const execute = promisify(childProcess.exec);
+import { exec } from 'child_process';
 const rl = readLine.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -82,13 +81,22 @@ class Utils {
     }
 
     static async exec(command){
-        let result
-        try{
-            result = await execute(command);
-        } catch(err){
-            result = err;
-        }
-        return result
+        return await new Promise((resolve, reject)=>{
+            try{
+                exec(command, (error, stdout, stderr)=>{
+                    if(error){
+                        reject(error)
+                    }
+                    
+                    resolve({
+                        stdout,
+                        stderr
+                    })
+                })
+            } catch(err){
+                reject(err)
+            }
+        })
     }
     
     static async message(message){
