@@ -10,7 +10,7 @@ import colors from "colors/safe.js";
 import TranslatedWords from './TranslatedWord.js';
 import fs from "fs"
 const fsPromises = fs.promises;
-import { SETTINGS } from "./Consts.js";
+import { SETTINGS, LOCAL_STORAGE } from "./Consts.js";
 
 class Utils {
     static async question(
@@ -192,7 +192,7 @@ class Utils {
         return text;
     }
 
-    static getFlags(args, boolFlags, paramsFlag){
+    static getFlags(args, {boolFlags = [], paramsFlag = []}){
         let nextIsAParamOf = '';
         let nextIsAParam = false;
         let flags = {};
@@ -263,6 +263,21 @@ class Utils {
 
     static clear(){
         process.stdout.write('\x1Bc');
+    }
+    
+    static async getLocalStorage(key){
+        const localStorageData = await fsPromises.readFile(LOCAL_STORAGE);
+        const localStorage = json.parse(localStorageData)[key];
+
+        return localStorage;
+    }    
+
+    static async setLocalStorage(key, value){
+        const localStorageData = await fsPromises.readFile(LOCAL_STORAGE);
+        let localStorageObj = json.parse(localStorageData);
+        localStorageObj[key] = value;
+        
+        await fsPromises.writeFile(LOCAL_STORAGE, JSON.stringify(localStorageObj))
     }
 }
 

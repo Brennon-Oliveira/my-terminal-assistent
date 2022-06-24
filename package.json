@@ -8,7 +8,9 @@
   },
   "type": "module",
   "scripts": {
-    "start": "node . git commit -aup -t 'Feat' -m 'Apagando comentario'"
+    "start": "node .",
+    "test_pull": "node . git pull -s",
+    "test_commit": "node . git commit -aup -t 'Feat' -m 'Apagando comentario'"
   },
   "repository": {
     "type": "git",

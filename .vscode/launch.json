@@ -5,8 +5,8 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "command": "npm start",
-            "name": "Run npm start",
+            "command": "npm run test_pull",
+            "name": "Run npm test_pull",
             "request": "launch",
             "type": "node-terminal"
         }

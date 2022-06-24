@@ -138,6 +138,10 @@ class Config {
             fs.promises.mkdir(SETTINGS_FOLDER, { recursive: true })
         }
 
+        if(!fs.existsSync(LOCAL_STORAGE)){
+            await fsPromises.writeFile(LOCAL_STORAGE, JSON.stringify({}))
+        }
+
         await fsPromises.writeFile(SETTINGS, JSON.stringify(settings))
     } // Config.init
 

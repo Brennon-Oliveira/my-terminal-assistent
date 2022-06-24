@@ -10,6 +10,8 @@ const {
     getSettings,
     useTemplate,
     question,
+    getLocalStorage,
+    setLocalStorage
 } = Utils;
 
 export default class Git {
@@ -29,6 +31,10 @@ export default class Git {
     };
 
     async pull(args) {
+        let {flags} = getFlags(args, {boolFlags: ["s"]})
+
+        let updateSuccess = false;
+
         let pullResponse = await exec("git pull --rebase");
 
         if (pullResponse.stderr) {
@@ -40,34 +46,33 @@ export default class Git {
                 `,
                     false
                 );
-                let howProgress = await question(
+                let howProgress = flags.s ?  "Git stash" : await question(
                     "Como deseja prosseguir:",
-                    ["Git stash", "Git commit", "Sair"],
+                    ["Git stash", "Sair"],
                     true
-                );
+                )
                 if (howProgress === "Git stash") {
-                    // await exec("git stash")
-                    warning(`
-                    Função ainda não implementada
-                    Caso acredite ser um erro, por favor informe a equipe de desenvolvimento
-                    `);
-                    process.exit(0);
-                } else if (howProgress === "Git commit") {
-                    warning(`
-                    Função ainda não implementada
-                    Caso acredite ser um erro, por favor informe a equipe de desenvolvimento
-                    `);
-                    process.exit(0);
+                    await exec("git stash")
+                    pullResponse = await exec("git pull --rebase")
+                    await exec("git stash apply")
+                    updateSuccess = true
                 } else {
                     process.exit(0);
                 }
             }
-        } else if (pullResponse.stdout) {
+        } if (pullResponse.stdout) {
+            updateSuccess = true
+        }
+        if(updateSuccess){
             let stdout = pullResponse.stdout;
-            if (stdout.includes("up to date")) {
+            if (stdout.includes("Already up to date")){
                 success(`
-                Sua branch foi atualizada com sucesso
-                `);
+                Branch já atualizada
+                `)
+            } else if (stdout.includes("up to date")) {
+                success(`
+                Sua branch foi atualizada com sucesso\n
+                ${stdout}`);
             }
         }
     }
@@ -75,8 +80,10 @@ export default class Git {
     async commit(args) {
         let { finalArgs, flags } = getFlags(
             args,
-            ["a", "p", "u"],
-            ["b", "t", "m"]
+            {
+                boolFlags:["a", "p", "u"],
+                paramsFlag:["b", "t", "m"]
+            }
         );
         let settings = await getSettings();
 
