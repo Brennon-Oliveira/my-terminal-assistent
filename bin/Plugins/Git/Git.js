@@ -88,17 +88,27 @@ export default class Git {
                 ?.trim() || "master";
 
         if (flags.u) {
+            message("Atualizando na branch " + branch)
             await exec("git stash");
             await exec("git pull");
             await exec("git stash apply");
         }
 
         if (flags.b) {
-            await exec(`git checkout -b ${flags.b}`);
+            const {stdout, stderr} = await exec(`git checkout -b ${flags.b}`);
+            if(stderr){
+                message(`Acessando branch ${flags.b}`)
+                await exec("git stash");
+                await exec(`git checkout ${flags.b}`)
+                await exec("git stash apply");
+            } else {
+                message(`Criando branch ${flags.b}`)
+            }
             branch = flags.b;
         }
 
         if (flags.a) {
+            message("Adicionando todos os arquivos")
             await exec("git add .");
         }
 
