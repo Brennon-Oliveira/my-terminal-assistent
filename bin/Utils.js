@@ -84,14 +84,7 @@ class Utils {
         return await new Promise((resolve, reject)=>{
             try{
                 exec(command, (error, stdout, stderr)=>{
-                    if(error){
-                        reject(error)
-                    }
-                    
-                    resolve({
-                        stdout,
-                        stderr
-                    })
+                    resolve({stdout, stderr, error})
                 })
             } catch(err){
                 reject(err)
