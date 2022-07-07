@@ -1,6 +1,6 @@
 import Utils from "./Utils.js";
 import fs from "fs"
-import { SETTINGS, SETTINGS_FOLDER } from "./Consts.js";
+import { SETTINGS, SETTINGS_FOLDER, LOCAL_STORAGE } from "./Consts.js";
 const fsPromises = fs.promises;
 const {message, clear, error, success, warning, question, translate, help} = Utils;
 
