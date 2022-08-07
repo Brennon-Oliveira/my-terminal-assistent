@@ -62,9 +62,10 @@ import { SETTINGS } from "./Consts";
             plugin.toLowerCase().includes(args[0])
         );
         if (command) {
-            const plugin = await import(`./Plugins/${command}/${command}.ts`);
+            const plugin = await import(`./Plugins/${command}/${command}`);
             if (args.length > 1) {
                 await new plugin.default().controller(
+                    command,
                     args.slice(1)[0],
                     args.slice(2)
                 );

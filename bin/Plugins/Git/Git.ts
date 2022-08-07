@@ -1,3 +1,5 @@
+import { Commands } from "../../Decorators";
+import Plugin from "../../Plugin";
 import Utils from "../../Utils";
 const {
     help,
@@ -14,21 +16,12 @@ const {
     setLocalStorage
 } = Utils;
 
-export default class Git {
-    services: {[service: string]: Function} = {
-        "--help": this.help,
-        "-h": this.help,
-        pull: this.pull,
-        commit: this.commit,
-    };
 
-    controller = async (action: string, args: Array<string>)=>{
-        if(this.services[action]){
-            return await this.services[action](args);
-        } else {
-            error(`Ação ${action} não encontrada na classe Git`);
-        }
-    };
+@Commands([
+    "pull",
+    "commit"
+])
+export default class Git extends Plugin{
 
     async pull(args:Array<string>) {
         let {flags} = getFlags(args, {boolFlags: ["s"]})

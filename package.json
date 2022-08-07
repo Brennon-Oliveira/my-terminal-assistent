@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "node .",
+    "debug": "node --inspect -r ts-node/register bin/index",
     "test_pull": "node . git pull -s",
     "test_commit": "node . git commit -aup -t 'Feat' -m 'Apagando comentario'"
   },
