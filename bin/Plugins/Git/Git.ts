@@ -1,4 +1,4 @@
-import Utils from "../../Utils.js";
+import Utils from "../../Utils";
 const {
     help,
     exec,
@@ -15,22 +15,22 @@ const {
 } = Utils;
 
 export default class Git {
-    services = {
+    services: {[service: string]: Function} = {
         "--help": this.help,
         "-h": this.help,
         pull: this.pull,
         commit: this.commit,
     };
 
-    controller = async (action, args) => {
-        if (this.services[action]) {
+    controller = async (action: string, args: Array<string>)=>{
+        if(this.services[action]){
             return await this.services[action](args);
         } else {
             error(`Ação ${action} não encontrada na classe Git`);
         }
     };
 
-    async pull(args) {
+    async pull(args:Array<string>) {
         let {flags} = getFlags(args, {boolFlags: ["s"]})
 
         let updateSuccess = false;
@@ -77,7 +77,7 @@ export default class Git {
         }
     }
 
-    async commit(args) {
+    async commit(args: Array<string>) {
         let { finalArgs, flags } = getFlags(
             args,
             {
@@ -111,7 +111,7 @@ export default class Git {
             } else {
                 message(`Criando branch ${flags.b}`)
             }
-            branch = flags.b;
+            branch = <string>flags.b;
         }
 
         if (flags.a) {
@@ -122,15 +122,15 @@ export default class Git {
         let commitMessage = "Commit sem mensagem";
 
         if (flags.m) {
-            commitMessage = flags.m;
+            commitMessage = <string> flags.m;
         }
 
         let type = "NotDefined";
         if (flags.t) {
-            type = flags.t;
+            type = <string>flags.t;
         }
 
-        commitMessage = useTemplate(settings.defaultCommitTemplate, {
+        commitMessage = useTemplate(settings["defaultCommitTemplate"], {
             branch: branch,
             message: commitMessage,
             type: type,

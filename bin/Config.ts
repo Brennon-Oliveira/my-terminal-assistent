@@ -6,7 +6,7 @@ const {message, clear, error, success, warning, question, translate, help} = Uti
 
 class Config {
 
-    services = {
+    services: {[service: string]: Function} = {
         "--help": this.help,
         "-h": this.help,
         "init": this.init,
@@ -14,7 +14,7 @@ class Config {
         "reset": this.reset
     }
     
-    controller = async (action, args)=>{
+    controller = async (action: string, args: Array<string>)=>{
         if(this.services[action]){
             return await this.services[action](args);
         } else {
@@ -22,7 +22,7 @@ class Config {
         }
     }
 
-    async init(args, firstCommand = false){
+    async init(args: Array<string>, firstCommand = false){
         if(!firstCommand){
             clear()
         }
@@ -36,8 +36,8 @@ class Config {
         
 
         if(settingAlreadyExists){
-            const settingsFile = await fsPromises.readFile(SETTINGS);
-            oldSettings = JSON.parse(settingsFile)
+            const settingsFile = <unknown>await fsPromises.readFile(SETTINGS);
+            oldSettings = JSON.parse(<string>settingsFile)
         }
 
         
@@ -61,7 +61,7 @@ class Config {
             
             let validName = false
             do {
-                name = await question(nameQuestion, true);
+                name = await question(nameQuestion);
                 if(name.trim() == ''){
                     if(oldSettings){
                         name = oldSettings.name;
@@ -79,7 +79,7 @@ class Config {
 
             let validEmail = false;
             do {
-                email = await question(emailQuestion, true);
+                email = await question(emailQuestion);
                 if(email.trim() == ''){
                     if(oldSettings){
                         email = oldSettings.email;
@@ -115,7 +115,7 @@ class Config {
             isCorrect = isCorrectInput == "s" ? true : false
         } while (!isCorrect);
 
-        let settings = {};
+        let settings: {[setting: string]: string} = {};
 
         if(oldSettings){
             settings = oldSettings
@@ -147,8 +147,8 @@ class Config {
 
     async info(){
         if(fs.existsSync(SETTINGS)){
-            const settingsFile = await fsPromises.readFile(SETTINGS);
-            let oldSettings = JSON.parse(settingsFile)
+            const settingsFile = <unknown>await fsPromises.readFile(SETTINGS);
+            let oldSettings = JSON.parse(<string>settingsFile)
             let messageText = `Informações do usuário atual:\n`
             let keys = Object.keys(oldSettings);
             keys.forEach(key => {

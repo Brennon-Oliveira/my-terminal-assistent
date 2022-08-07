@@ -7,7 +7,6 @@
     "myta": "bin/index.js",
     "build": "node-deb -- ."
   },
-  "type": "module",
   "scripts": {
     "start": "node .",
     "test_pull": "node . git pull -s",

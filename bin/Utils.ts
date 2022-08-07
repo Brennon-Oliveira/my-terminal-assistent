@@ -1,7 +1,6 @@
 
-import {promisify} from 'util';
 import readLine from 'readline';
-import { exec } from 'child_process';
+import { exec, ExecException } from 'child_process';
 const rl = readLine.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -12,12 +11,14 @@ import fs from "fs"
 const fsPromises = fs.promises;
 import { SETTINGS, LOCAL_STORAGE } from "./Consts";
 
+type flags = {[key: string]: string | boolean}
+
 class Utils {
     static async question(
-        receiveQuestion,
-        options,
-        multline
-    ){
+        receiveQuestion: string,
+        options: Array<string> = [],
+        multline: boolean = false
+    ): Promise<string>{
         return await new Promise(async (resolve, reject) => {
             try {
                 if (options && options.length > 0) {
@@ -26,7 +27,7 @@ class Utils {
                     do {
                         if (multline) {
                             let message = `${receiveQuestion}\n`;
-                            let indexes = [];
+                            let indexes: Array<string> = [];
                             options.forEach((option, index)=>{
                                 message += `${index+1} - ${option}\n`;
                                 indexes.push((index + 1).toString());
@@ -80,7 +81,11 @@ class Utils {
         });
     }
 
-    static async exec(command){
+    static async exec(command: string): Promise<{
+        stdout: string;
+        stderr: string;
+        error: ExecException | null;
+    }>{
         return await new Promise((resolve, reject)=>{
             try{
                 exec(command, (error, stdout, stderr)=>{
@@ -92,7 +97,7 @@ class Utils {
         })
     }
     
-    static async message(message){
+    static async message(message: string){
         let lines = Utils.tabRemove(message);
 
         console.log(colors.cyan(`Mensagem -------------------------\n`))
@@ -102,7 +107,7 @@ class Utils {
         console.log(colors.cyan(`\n----------------------------------`))
     }
     
-    static async error(message, exit = true){
+    static async error(message: string, exit = true){
         let lines = Utils.tabRemove(message);
 
         console.log(colors.red("Erro -----------------------------\n"))
@@ -115,7 +120,7 @@ class Utils {
         }
     }
 
-    static async success(message){
+    static async success(message: string){
         let lines = Utils.tabRemove(message);
 
         console.log(colors.green("Sucesso --------------------------\n"))
@@ -125,7 +130,7 @@ class Utils {
         console.log(colors.green("\n---------------------------------"))
     }
 
-    static async warning(message){
+    static async warning(message: string){
         let lines = Utils.tabRemove(message);
 
         console.log(colors.yellow("Aviso ---------------------------\n"))
@@ -135,7 +140,7 @@ class Utils {
         console.log(colors.yellow("\n----------------------------------"))
     }
 
-    static tabRemove(message){
+    static tabRemove(message: string): Array<string>{
         message = message.trim()
         let lines = message.split("\n")
 
@@ -145,7 +150,7 @@ class Utils {
         //     }
         // });
 
-        let minSpaceCount;
+        let minSpaceCount = 0;
 
         lines.forEach(line => {
             let currentSpaceCount = 0;
@@ -166,7 +171,7 @@ class Utils {
             let lineText = Array.from(lines[line]);
             let charsToRemove = 0;
             for(let char of lineText){
-                if(char == ' ' & charsToRemove < minSpaceCount){
+                if(char == ' ' && charsToRemove < minSpaceCount){
                     charsToRemove++;
                 } else {
                     break
@@ -180,7 +185,7 @@ class Utils {
         return lines
     }
 
-    static translate(text){
+    static translate(text: string): string{
         let words = Object.keys(TranslatedWords);
         words = words.sort((a, b)=>{
             return b.length - a.length
@@ -192,10 +197,16 @@ class Utils {
         return text;
     }
 
-    static getFlags(args, {boolFlags = [], paramsFlag = []}){
+    static getFlags(
+        args: Array<string>,
+        {boolFlags= [], paramsFlag = []} : {
+            boolFlags?: Array<string>;
+            paramsFlag?: Array<string>;
+        }
+    ): {flags: flags, finalArgs: Array<string>}{
         let nextIsAParamOf = '';
         let nextIsAParam = false;
-        let flags = {};
+        let flags: flags = {};
         let finalArgs = [];
         for(let arg of args){
             if(nextIsAParam){
@@ -207,7 +218,7 @@ class Utils {
                 } else {
                     arg = arg.substring(1);
                 }
-                Array.from(arg).forEach(charArg=>{
+                Array.from(arg).forEach((charArg: string)=>{
                     if(boolFlags.includes(charArg)){
                         flags[charArg] = true
                     } else if(paramsFlag){
@@ -222,7 +233,14 @@ class Utils {
         return {flags, finalArgs};
     }
 
-    static help(parent, commands){
+    static help(parent: string, commands: Array<{
+        name: string;
+        description: string;
+        flags?: Array<{
+            name: string;
+            description: string;
+        }>;
+    }>){
         let message = colors.bold(parent);
         commands.forEach(command=>{
             message+=`\n\n\t${colors.bold(command.name)} : ${colors.italic(command.description)}`
@@ -242,7 +260,7 @@ class Utils {
         })
     }
 
-    static useTemplate(template, values){
+    static useTemplate(template: string, values: {[keys: string]: string}): string{
         let keys = Object.keys(values);
         keys = keys.sort((a, b)=>{
             return b.length - a.length
@@ -254,10 +272,9 @@ class Utils {
         return template
     }
 
-    static async getSettings(){
-        const settingsFile = await fsPromises.readFile(SETTINGS);
-        let settings = JSON.parse(settingsFile)
-
+    static async getSettings(): Promise<{[keys: string]: string}>{
+        const settingsFile = <unknown> await fsPromises.readFile(SETTINGS);
+        let settings = JSON.parse(<string>settingsFile)
         return settings
     }
 
@@ -265,16 +282,16 @@ class Utils {
         process.stdout.write('\x1Bc');
     }
     
-    static async getLocalStorage(key){
-        const localStorageData = await fsPromises.readFile(LOCAL_STORAGE);
-        const localStorage = json.parse(localStorageData)[key];
+    static async getLocalStorage(key: string){
+        const localStorageData = <unknown>await fsPromises.readFile(LOCAL_STORAGE);
+        const localStorage = JSON.parse(<string>localStorageData)[key];
 
         return localStorage;
-    }    
+    }
 
-    static async setLocalStorage(key, value){
-        const localStorageData = await fsPromises.readFile(LOCAL_STORAGE);
-        let localStorageObj = json.parse(localStorageData);
+    static async setLocalStorage(key: string, value: string){
+        const localStorageData = <unknown>await fsPromises.readFile(LOCAL_STORAGE);
+        let localStorageObj = JSON.parse(<string>localStorageData);
         localStorageObj[key] = value;
         
         await fsPromises.writeFile(LOCAL_STORAGE, JSON.stringify(localStorageObj))

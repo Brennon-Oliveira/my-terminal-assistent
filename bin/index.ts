@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import fs from "fs";
-import Utils from "./Utils.js";
+import Utils from "./Utils";
 import Config from "./Config";
 import { SETTINGS } from "./Consts";
 
@@ -16,9 +16,9 @@ import { SETTINGS } from "./Consts";
         Tudo pronto, agora podemos executar seus comandos da melhor forma
         `);
     }
-    const args = <Array<string | undefined>>process.argv.slice(2);
-    args[0] = args[0] ? args[0].toLowerCase() : undefined;
-    if (!args[0]) {
+    const args = <Array<string>>process.argv.slice(2);
+    args[0] = args[0] ? args[0].toLowerCase() : "";
+    if (args[0] === "") {
         Utils.clear();
         Utils.message(`
         O myta (My Terminal Assistent) é um assistente para o terminal, que ajuda a executar comandos no sistema operacional.
@@ -55,14 +55,14 @@ import { SETTINGS } from "./Consts";
         }
         process.exit(0);
     }
-    let Plugins = await Utils.exec(`ls "${process.cwd()}/bin/Plugins"`);
-    Plugins = Plugins.stdout.split("\n");
+    let plugins = await Utils.exec(`ls "${process.cwd()}/bin/Plugins"`);
+    let Plugins = plugins.stdout.split("\n");
     if (Plugins.length > 0) {
         let command = Plugins.find((plugin) =>
             plugin.toLowerCase().includes(args[0])
         );
         if (command) {
-            const plugin = await import(`./Plugins/${command}/${command}.js`);
+            const plugin = await import(`./Plugins/${command}/${command}.ts`);
             if (args.length > 1) {
                 await new plugin.default().controller(
                     args.slice(1)[0],
