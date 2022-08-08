@@ -1,21 +1,5 @@
-import { Commands } from "../../Decorators";
-import Plugin from "../../Plugin";
-import Utils from "../../Utils";
-const {
-    help,
-    exec,
-    error,
-    warning,
-    message,
-    success,
-    getFlags,
-    getSettings,
-    useTemplate,
-    question,
-    getLocalStorage,
-    setLocalStorage
-} = Utils;
-
+import { Commands } from "../Decorators";
+import Plugin from "../Plugin";
 
 @Commands([
     "pull",
@@ -24,30 +8,30 @@ const {
 export default class Git extends Plugin{
 
     async pull(args:Array<string>) {
-        let {flags} = getFlags(args, {boolFlags: ["s"]})
+        let {flags} = this.utils.getFlags(args, {boolFlags: ["s"]})
 
         let updateSuccess = false;
 
-        let pullResponse = await exec("git pull --rebase");
+        let pullResponse = await this.utils.exec("git pull --rebase");
 
         if (pullResponse.stderr) {
             let stderr = pullResponse.stderr;
             if (stderr.includes("You have unstaged changes")) {
-                error(
+                this.utils.error(
                     `
                 Você possuí alterações não commitadas.
                 `,
                     false
                 );
-                let howProgress = flags.s ?  "Git stash" : await question(
+                let howProgress = flags.s ?  "Git stash" : await this.utils.question(
                     "Como deseja prosseguir:",
                     ["Git stash", "Sair"],
                     true
                 )
                 if (howProgress === "Git stash") {
-                    await exec("git stash")
-                    pullResponse = await exec("git pull --rebase")
-                    await exec("git stash apply")
+                    await this.utils.exec("git stash")
+                    pullResponse = await this.utils.exec("git pull --rebase")
+                    await this.utils.exec("git stash apply")
                     updateSuccess = true
                 } else {
                     process.exit(0);
@@ -59,11 +43,11 @@ export default class Git extends Plugin{
         if(updateSuccess){
             let stdout = pullResponse.stdout;
             if (stdout.includes("Already up to date")){
-                success(`
+                this.utils.success(`
                 Branch já atualizada
                 `)
             } else if (stdout.includes("up to date")) {
-                success(`
+                this.utils.success(`
                 Sua branch foi atualizada com sucesso\n
                 ${stdout}`);
             }
@@ -71,16 +55,16 @@ export default class Git extends Plugin{
     }
 
     async commit(args: Array<string>) {
-        let { finalArgs, flags } = getFlags(
+        let { finalArgs, flags } = this.utils.getFlags(
             args,
             {
                 boolFlags:["a", "p", "u"],
                 paramsFlag:["b", "t", "m"]
             }
         );
-        let settings = await getSettings();
+        let settings = await this.utils.getSettings();
 
-        let branchs = await exec("git branch");
+        let branchs = await this.utils.exec("git branch");
         let branch =
             branchs.stdout
                 .substring(branchs.stdout.indexOf("*"))
@@ -88,28 +72,28 @@ export default class Git extends Plugin{
                 ?.trim() || "master";
 
         if (flags.u) {
-            message("Atualizando na branch " + branch)
-            await exec("git stash");
-            await exec("git pull");
-            await exec("git stash apply");
+            this.utils.message("Atualizando na branch " + branch)
+            await this.utils.exec("git stash");
+            await this.utils.exec("git pull");
+            await this.utils.exec("git stash apply");
         }
 
         if (flags.b) {
-            const {stdout, stderr} = await exec(`git checkout -b ${flags.b}`);
+            const {stdout, stderr} = await this.utils.exec(`git checkout -b ${flags.b}`);
             if(stderr){
-                message(`Acessando branch ${flags.b}`)
-                await exec("git stash");
-                await exec(`git checkout ${flags.b}`)
-                await exec("git stash apply");
+                this.utils.message(`Acessando branch ${flags.b}`)
+                await this.utils.exec("git stash");
+                await this.utils.exec(`git checkout ${flags.b}`)
+                await this.utils.exec("git stash apply");
             } else {
-                message(`Criando branch ${flags.b}`)
+                this.utils.message(`Criando branch ${flags.b}`)
             }
             branch = <string>flags.b;
         }
 
         if (flags.a) {
-            message("Adicionando todos os arquivos")
-            await exec("git add .");
+            this.utils.message("Adicionando todos os arquivos")
+            await this.utils.exec("git add .");
         }
 
         let commitMessage = "Commit sem mensagem";
@@ -123,39 +107,39 @@ export default class Git extends Plugin{
             type = <string>flags.t;
         }
 
-        commitMessage = useTemplate(settings["defaultCommitTemplate"], {
+        commitMessage = this.utils.useTemplate(settings["defaultCommitTemplate"], {
             branch: branch,
             message: commitMessage,
             type: type,
         });
 
-        let commit = await exec(`git commit -m "${commitMessage}"`);
+        let commit = await this.utils.exec(`git commit -m "${commitMessage}"`);
 
         if (commit.stderr) {
-            error("Houve um erro ao realizar o commit");
+            this.utils.error("Houve um erro ao realizar o commit");
         } else if (commit.stdout) {
             if (commit.stdout.includes("nothing to commit")) {
-                warning("Você não possuí alterações para commitar");
+                this.utils.warning("Você não possuí alterações para commitar");
             } else if (
                 commit.stdout.includes(
                     "nenhuma modificação adicionada à submissão"
                 )
             ) {
-                warning(`
+                this.utils.warning(`
                 Você possuí alterações não adicionadas
                 Adicione os arquivos na fila (listando com "git status")
                 Ou tente novamente utilizando a flag "-a" para realizar "git add ."
                 `);
             } else {
                 if (flags.p) {
-                    let pushed = await exec(
+                    let pushed = await this.utils.exec(
                         `git push --set-upstream origin ${branch}`
                     );
                     if (
                         pushed.stdout ||
                         pushed.stderr.includes("To github.com")
                     ) {
-                        success(`
+                        this.utils.success(`
                         Commit realizado com sucesso:
                             ${commit.stdout}
                         
@@ -163,7 +147,7 @@ export default class Git extends Plugin{
                             ${pushed.stdout}
                         `);
                     } else {
-                        error(`
+                        this.utils.error(`
                         Commit realizado com sucesso:
                             ${commit.stdout}
                         Mas falha ao realizar o "git push":
@@ -171,7 +155,7 @@ export default class Git extends Plugin{
                         `);
                     }
                 } else {
-                    success(`
+                    this.utils.success(`
                     Commit realizado com sucesso:
                         ${commit.stdout}
                     `);
@@ -181,7 +165,7 @@ export default class Git extends Plugin{
     }
 
     async help() {
-        help("myta git", [
+        this.utils.help("myta git", [
             {
                 name: "pull",
                 description: "Realiza git pull --rebase",

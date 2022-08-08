@@ -10,11 +10,10 @@ import TranslatedWords from './TranslatedWord';
 import fs from "fs"
 const fsPromises = fs.promises;
 import { SETTINGS, LOCAL_STORAGE } from "./Consts";
+import IUtils, { flags } from './Plugins/Interfaces/IUtils.interface';
 
-type flags = {[key: string]: string | boolean}
-
-class Utils {
-    static async question(
+class Utils extends IUtils {
+    async question(
         receiveQuestion: string,
         options: Array<string> = [],
         multline: boolean = false
@@ -32,20 +31,20 @@ class Utils {
                                 message += `${index+1} - ${option}\n`;
                                 indexes.push((index + 1).toString());
                             })
-                            let userChoose = await Utils.question(message);
+                            let userChoose = await this.question(message);
                             if(indexes.includes(userChoose)) {
                                 validResponse = true;
                                 finalResponse = options[parseInt(userChoose) - 1];
                             } else {
                                 validResponse = false;
-                                await Utils.warning(
+                                await this.warning(
                                     "O valor de entrada é inválido\nPor favor, selecione um dos valores válidos"
                                 );
                             }
                         } else {
-                            let lines = Utils.tabRemove(receiveQuestion);
+                            let lines = this.tabRemove(receiveQuestion);
                             receiveQuestion = lines.join("\n")
-                            finalResponse = await Utils.question(
+                            finalResponse = await this.question(
                                 `${receiveQuestion}: (${options.join(" - ")})`
                             );
                             const formattedOptions = options.map((option) =>
@@ -55,7 +54,7 @@ class Utils {
                                 validResponse = true;
                             } else {
                                 validResponse = false;
-                                await Utils.warning(
+                                await this.warning(
                                     "O valor de entrada é inválido\nPor favor, selecione um dos valores válidos"
                                 );
                             }
@@ -63,9 +62,9 @@ class Utils {
                     } while (!validResponse);
                     return resolve(finalResponse);
                 } else {
-                    receiveQuestion = Utils.translate(receiveQuestion);
+                    receiveQuestion = this.translate(receiveQuestion);
                     console.log(colors.cyan("----------------------------------"));
-                    let lines = Utils.tabRemove(receiveQuestion);
+                    let lines = this.tabRemove(receiveQuestion);
                     lines.forEach(line => {
                         console.log(colors.cyan(`   ${line}`))
                     })
@@ -81,7 +80,7 @@ class Utils {
         });
     }
 
-    static async exec(command: string): Promise<{
+    async exec(command: string): Promise<{
         stdout: string;
         stderr: string;
         error: ExecException | null;
@@ -97,8 +96,8 @@ class Utils {
         })
     }
     
-    static async message(message: string){
-        let lines = Utils.tabRemove(message);
+    async message(message: string){
+        let lines = this.tabRemove(message);
 
         console.log(colors.cyan(`Mensagem -------------------------\n`))
         lines.forEach(line => {
@@ -107,8 +106,8 @@ class Utils {
         console.log(colors.cyan(`\n----------------------------------`))
     }
     
-    static async error(message: string, exit = true){
-        let lines = Utils.tabRemove(message);
+    async error(message: string, exit = true){
+        let lines = this.tabRemove(message);
 
         console.log(colors.red("Erro -----------------------------\n"))
         lines.forEach(line => {
@@ -120,8 +119,8 @@ class Utils {
         }
     }
 
-    static async success(message: string){
-        let lines = Utils.tabRemove(message);
+    async success(message: string){
+        let lines = this.tabRemove(message);
 
         console.log(colors.green("Sucesso --------------------------\n"))
         lines.forEach(line => {
@@ -130,8 +129,8 @@ class Utils {
         console.log(colors.green("\n---------------------------------"))
     }
 
-    static async warning(message: string){
-        let lines = Utils.tabRemove(message);
+    async warning(message: string){
+        let lines = this.tabRemove(message);
 
         console.log(colors.yellow("Aviso ---------------------------\n"))
         lines.forEach(line => {
@@ -140,7 +139,7 @@ class Utils {
         console.log(colors.yellow("\n----------------------------------"))
     }
 
-    static tabRemove(message: string): Array<string>{
+    tabRemove(message: string): Array<string>{
         message = message.trim()
         let lines = message.split("\n")
 
@@ -185,7 +184,7 @@ class Utils {
         return lines
     }
 
-    static translate(text: string): string{
+    translate(text: string): string{
         let words = Object.keys(TranslatedWords);
         words = words.sort((a, b)=>{
             return b.length - a.length
@@ -197,7 +196,7 @@ class Utils {
         return text;
     }
 
-    static getFlags(
+    getFlags(
         args: Array<string>,
         {boolFlags= [], paramsFlag = []} : {
             boolFlags?: Array<string>;
@@ -233,7 +232,7 @@ class Utils {
         return {flags, finalArgs};
     }
 
-    static help(parent: string, commands: Array<{
+    help(parent: string, commands: Array<{
         name: string;
         description: string;
         flags?: Array<{
@@ -251,16 +250,16 @@ class Utils {
             }
         })
         message += `\n\n\n\t ${colors.bold("-h ou --help")} : Exibe lista e descrição dos comandos`
-        Utils.message(message)
+        this.message(message)
     }
 
-    static async delay(delay = 500){
+    async delay(delay = 500){
         return await new Promise((resolve, reject)=>{
             setTimeout(resolve, delay)
         })
     }
 
-    static useTemplate(template: string, values: {[keys: string]: string}): string{
+    useTemplate(template: string, values: {[keys: string]: string}): string{
         let keys = Object.keys(values);
         keys = keys.sort((a, b)=>{
             return b.length - a.length
@@ -272,24 +271,24 @@ class Utils {
         return template
     }
 
-    static async getSettings(): Promise<{[keys: string]: string}>{
+    async getSettings(): Promise<{[keys: string]: string}>{
         const settingsFile = <unknown> await fsPromises.readFile(SETTINGS);
         let settings = JSON.parse(<string>settingsFile)
         return settings
     }
 
-    static clear(){
+    clear(){
         process.stdout.write('\x1Bc');
     }
     
-    static async getLocalStorage(key: string){
+    async getLocalStorage(key: string): Promise<Object>{
         const localStorageData = <unknown>await fsPromises.readFile(LOCAL_STORAGE);
         const localStorage = JSON.parse(<string>localStorageData)[key];
 
         return localStorage;
     }
 
-    static async setLocalStorage(key: string, value: string){
+    async setLocalStorage(key: string, value: string){
         const localStorageData = <unknown>await fsPromises.readFile(LOCAL_STORAGE);
         let localStorageObj = JSON.parse(<string>localStorageData);
         localStorageObj[key] = value;
