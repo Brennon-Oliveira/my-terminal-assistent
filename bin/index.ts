@@ -5,7 +5,7 @@ import { SETTINGS, SETTINGS_FOLDER } from "./Consts";
 
 (async function () {
     let utils = new Utils();
-    let isDev = true;
+    let isDev = false;
     let isFirstProdTime = false;
     let plugins;
     if(!isDev){
@@ -33,6 +33,17 @@ import { SETTINGS, SETTINGS_FOLDER } from "./Consts";
     args[0] = args[0] ? args[0].toLowerCase() : "";
     if (args[0] === "") {
         utils.clear();
+        let plugins = await utils.exec("for i in $(ls -d ~/.myta/Plugins/*/); do echo ${i%%/}; done")
+        let pluginList = plugins.stdout.split("\n").filter((plugin)=>{
+            return !plugin.includes("Interface") && plugin != ""
+        })
+        
+        let message = "";
+        pluginList.forEach((plugin)=>{
+            const _plugin = plugin.split("/")[plugin.split("/").length-1]
+            let pluginName = _plugin.charAt(0).toLocaleLowerCase() + _plugin.slice(1);
+            message += `\tmyta ${pluginName} [opções]\n`
+        })
         utils.message(`
         O myta (My Terminal Assistent) é um assistente para o terminal, que ajuda a executar comandos no sistema operacional.
         Ele possui vários comandos, que podem ser executados de forma rápida e fácil.
@@ -40,8 +51,7 @@ import { SETTINGS, SETTINGS_FOLDER } from "./Consts";
             myta [comando] [opções]
 
         No myta, atualmente você pode executar os comandos abaixo:
-            myta git [opções]
-            myta config [opções]
+        ${message}
 
         Para mais informações sobre um comando, digite:
             myta [comando] --help

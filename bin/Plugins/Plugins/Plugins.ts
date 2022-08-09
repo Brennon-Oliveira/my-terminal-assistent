@@ -30,7 +30,7 @@ export default class Plugins extends Plugin {
 
         if(pluginLs.stdout != ""){
             await utils.exec(`sudo cp -r ~/myta-plugins/${pluginName} ~/.myta/Plugins/`)
-            await utils.exec("rm -rf ~/myta-plugins")
+            await utils.exec("sudo rm -rf ~/myta-plugins")
             utils.message(`Plugin "${pluginName}" adicionado com sucesso`)
         } else{
             utils.error("O plugin informado não existe na lista oficial", true);
