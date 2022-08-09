@@ -1,7 +1,7 @@
 import fs from "fs";
 import Utils from "./Utils";
 import Config from "./Config";
-import { SETTINGS } from "./Consts";
+import { SETTINGS, SETTINGS_FOLDER } from "./Consts";
 
 (async function () {
     let utils = new Utils();
@@ -9,9 +9,9 @@ import { SETTINGS } from "./Consts";
     let isFirstProdTime = false;
     let plugins;
     if(!isDev){
-        plugins = await utils.exec(`ls "/usr/share/myta/Plugins"`);
+        plugins = await utils.exec(`ls "${SETTINGS_FOLDER}/Plugins"`);
         if(!plugins.stdout.includes("No such file or directory")){
-            plugins = await utils.exec("for i in $(ls -d /usr/share/myta/Plugins/*/); do echo ${i%%/}; done")
+            plugins = await utils.exec("for i in $(ls -d "+SETTINGS_FOLDER+"/Plugins/*/); do echo ${i%%/}; done")
         } else {
             isFirstProdTime = true;
         }
@@ -74,7 +74,7 @@ import { SETTINGS } from "./Consts";
         )?.split("/");
         if (dir) {
             let command = dir[dir.length-1];
-            const plugin = await import(`/usr/share/myta/Plugins/${command}/${command}`);
+            const plugin = await import(`${SETTINGS_FOLDER}/Plugins/${command}/${command}`);
             if (args.length > 1){
                 await new plugin.default(utils).controller(
                     command,
