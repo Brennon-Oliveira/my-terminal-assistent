@@ -152,7 +152,7 @@ class Config {
         let plugin = await this.utils.exec(`sudo ls "${SETTINGS_FOLDER}/Plugins"`);
         if(plugin.stderr.includes("No such file or directory")){
             await this.utils.exec(`sudo mkdir -p ${SETTINGS_FOLDER}/Plugins`);
-            await this.utils.exec(`sudo cp -r ./bin/Plugins/* ${SETTINGS_FOLDER}/Plugins/`);
+            await this.utils.exec(`sudo cp -r /usr/share/myta/app/bin/Plugins/* ${SETTINGS_FOLDER}/Plugins/`);
         }
 
         await fsPromises.writeFile(SETTINGS, JSON.stringify(settings))
