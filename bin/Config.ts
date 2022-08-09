@@ -1,8 +1,9 @@
 import Utils from "./Utils";
 import fs from "fs"
 import { SETTINGS, SETTINGS_FOLDER, LOCAL_STORAGE } from "./Consts";
+import IUtils from "./Plugins/Interfaces/IUtils.interface";
 const fsPromises = fs.promises;
-const {message, clear, error, success, warning, question, translate, help} = Utils;
+// const {message, clear, error, success, warning, question, translate, help} = new Utils();
 
 class Config {
 
@@ -13,18 +14,24 @@ class Config {
         "info": this.info,
         "reset": this.reset
     }
+
+    utils: IUtils
+
+    constructor(utils: IUtils){
+        this.utils = utils
+    }
     
     controller = async (action: string, args: Array<string>)=>{
         if(this.services[action]){
             return await this.services[action](args);
         } else {
-            error(`Ação ${action} não encontrada na classe Config`);
+            this.utils.error(`Ação ${action} não encontrada na classe Config`);
         }
     }
 
     async init(args: Array<string>, firstCommand = false){
         if(!firstCommand){
-            clear()
+            this.utils.clear()
         }
         let isCorrect;
         let name;
@@ -43,9 +50,9 @@ class Config {
         
         do {
             if (isCorrect === false || settingAlreadyExists){
-                message(`Reiniciando a configuração de usuários`);
+                this.utils.message(`Reiniciando a configuração de usuários`);
             } else {
-                message(`Iniciando a configuração de usuários`);
+                this.utils.message(`Iniciando a configuração de usuários`);
             }
 
             let nameQuestion = `Para iniciar, digite seu nome:`
@@ -61,13 +68,13 @@ class Config {
             
             let validName = false
             do {
-                name = await question(nameQuestion);
+                name = await this.utils.question(nameQuestion);
                 if(name.trim() == ''){
                     if(oldSettings){
                         name = oldSettings.name;
                         validName = true
                     } else {
-                        warning("Nomes vazios não são permitidos")
+                        this.utils.warning("Nomes vazios não são permitidos")
                         validName = false
                     }
                 } else {
@@ -75,17 +82,17 @@ class Config {
                     validName = true
                 }
             } while(!validName)
-            message(`Seja bem vindo, ${name}`);
+            this.utils.message(`Seja bem vindo, ${name}`);
 
             let validEmail = false;
             do {
-                email = await question(emailQuestion);
+                email = await this.utils.question(emailQuestion);
                 if(email.trim() == ''){
                     if(oldSettings){
                         email = oldSettings.email;
                         validEmail = true
                     } else {
-                        warning("Por favor, preencha o email")
+                        this.utils.warning("Por favor, preencha o email")
                         validEmail = false
                     }
                 } else {
@@ -94,16 +101,16 @@ class Config {
                         email = email.trim()
                         validEmail = true
                     } else {
-                        warning("Por favor, digite um email válido")
+                        this.utils.warning("Por favor, digite um email válido")
                         validEmail = false
                     }
                 }
             } while(!validEmail)
 
-             defaultBranchNameTemplate = await question(defaultBranchNameTemplateQuestion, ["{branch}", "{type}-{branch}"], true)
-             defaultCommitTemplate = await question(defaultCommitTemplateQuestion, ["{branch} - {type}: {message}", "{type}: {branch} - {message}", "{type}: {message}"], true)
+             defaultBranchNameTemplate = await this.utils.question(defaultBranchNameTemplateQuestion, ["{branch}", "{type}-{branch}"], true)
+             defaultCommitTemplate = await this.utils.question(defaultCommitTemplateQuestion, ["{branch} - {type}: {message}", "{type}: {branch} - {message}", "{type}: {message}"], true)
             
-            let isCorrectInput = await question(`
+            let isCorrectInput = await this.utils.question(`
             As informações obtidas foram:
                 Name: ${name}
                 Email: ${email}
@@ -123,7 +130,7 @@ class Config {
             settings.email = email;
             settings.defaultBranchNameTemplate = defaultBranchNameTemplate;
             settings.defaultCommitTemplate = defaultCommitTemplate;
-            success("Usuário atualizado com sucesso!")
+            this.utils.success("Usuário atualizado com sucesso!")
         } else {
             settings = {
                 name,
@@ -131,7 +138,7 @@ class Config {
                 defaultBranchNameTemplate,
                 defaultCommitTemplate
             }
-            success("Usuário configurado com sucesso!")
+            this.utils.success("Usuário configurado com sucesso!")
         }
 
         if(!fs.existsSync(SETTINGS_FOLDER)){
@@ -140,6 +147,12 @@ class Config {
 
         if(!fs.existsSync(LOCAL_STORAGE)){
             await fsPromises.writeFile(LOCAL_STORAGE, JSON.stringify({}))
+        }
+
+        let plugin = await this.utils.exec(`sudo ls "/usr/share/myta/Plugins"`);
+        if(plugin.stderr.includes("No such file or directory")){
+            await this.utils.exec("sudo mkdir -p /usr/share/myta/Plugins");
+            await this.utils.exec("sudo cp -r ./bin/Plugins/* /usr/share/myta/Plugins/");
         }
 
         await fsPromises.writeFile(SETTINGS, JSON.stringify(settings))
@@ -155,10 +168,10 @@ class Config {
                 let _key = key.charAt(0).toUpperCase() + key.slice(1);
                 messageText += `\n\t${_key}: ${oldSettings[key]}`
             });
-            messageText = translate(messageText)
-            message(messageText)
+            messageText = this.utils.translate(messageText)
+            this.utils.message(messageText)
         } else {
-            warning(`
+            this.utils.warning(`
             Nenhum usuário configurado!
             Para configurar um usuário, digite:
                 myta config init
@@ -170,7 +183,7 @@ class Config {
         if(fs.existsSync(SETTINGS)){
             fs.rmSync(SETTINGS)
         }
-        success(`
+        this.utils.success(`
         Configurações resetadas com sucesso
         Por favor, atualize suas informações novamente digitando:
             myta config init
@@ -178,7 +191,7 @@ class Config {
     }
 
     async help(){
-        help("myta config", [
+        this.utils.help("myta config", [
             {
                 name: "init",
                 description: "Inicia ou atualiza as configurações básicas do usuário",

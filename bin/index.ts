@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import fs from "fs";
 import Utils from "./Utils";
 import Config from "./Config";
@@ -7,12 +5,25 @@ import { SETTINGS } from "./Consts";
 
 (async function () {
     let utils = new Utils();
-    if (!fs.existsSync(SETTINGS)) {
+    let isDev = false;
+    let isFirstProdTime = false;
+    let plugins;
+    if(!isDev){
+        plugins = await utils.exec(`ls "/usr/share/myta/Plugins"`);
+        if(!plugins.stdout.includes("No such file or directory")){
+            plugins = await utils.exec("for i in $(ls -d /usr/share/myta/Plugins/*/); do echo ${i%%/}; done")
+        } else {
+            isFirstProdTime = true;
+        }
+    } else {
+        plugins = await utils.exec(`ls "${process.cwd()}/bin/Plugins"`);
+    }
+    if (!fs.existsSync(SETTINGS) || isFirstProdTime) {
         utils.clear();
         utils.warning(`
         Por favor, antes de prosseguir, faça suas configurações básicas
         `);
-        await new Config().init([], true);
+        await new Config(utils).init([], true);
         utils.message(`
         Tudo pronto, agora podemos executar seus comandos da melhor forma
         `);
@@ -47,7 +58,7 @@ import { SETTINGS } from "./Consts";
         process.exit(0);
     }
     if (args[0] === "config") {
-        let config = new Config();
+        let config = new Config(utils);
 
         if (args.length > 1) {
             await config.controller(args.slice(1)[0], args.slice(2));
@@ -56,28 +67,22 @@ import { SETTINGS } from "./Consts";
         }
         process.exit(0);
     }
-    let isDev = false;
-    let plugins;
-    if(!isDev){
-        plugins = await utils.exec(`ls /usr/share/myta/Plugins"`);
-    } else {
-        plugins = await utils.exec(`ls "${process.cwd()}/bin/Plugins"`);
-    }
     let Plugins = plugins.stdout.split("\n");
     if (Plugins.length > 0) {
-        let command = Plugins.find((plugin) =>
+        let dir = Plugins.find((plugin) =>
             plugin.toLowerCase().includes(args[0])
-        );
-        if (command) {
+        )?.split("/");
+        if (dir) {
+            let command = dir[dir.length-1];
             const plugin = await import(`/usr/share/myta/Plugins/${command}/${command}`);
             if (args.length > 1){
-                await new plugin.default().controller(
+                await new plugin.default(utils).controller(
                     command,
                     args.slice(1)[0],
                     args.slice(2)
                 );
             } else {
-                await new plugin.default().help();
+                await new plugin.default(utils).help();
             }
         } else {
             utils.error(`
