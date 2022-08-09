@@ -15,5 +15,6 @@ Então execute `myta` para verificar o sucesso na instalação e preencher as co
 Caso o programa apresente erro, execute `sudo ln -s $(which ts-node) /usr/share/myta/app/ts-node` e tente novamente.
 
 ## Plugins
-
 Para conseguir manipular seus plugins, basta executar `myta plugins` para utiliazar o plugin padrão de gerenciamento de plugins, onde terá novas instruções para a utilização.
+
+Caso receba o erro "Comando plugins não encontrado", ou nenhum plugin esteja sendo listado, execute `sudo cp -r /usr/share/myta/app/bin/Plugins ~/.myta`
