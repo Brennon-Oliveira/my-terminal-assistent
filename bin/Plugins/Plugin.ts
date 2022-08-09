@@ -3,13 +3,9 @@ import IUtils from './Interfaces/IUtils.interface';
 
 export default class Plugin {
     services: {[service: string]: Function} = {};
-    utils: IUtils;
 
-    constructor(utils: IUtils){
-        this.utils = utils;
-    }
-
-    async controller(pluginName: string, action: string, args: Array<string>){
+    async controller(utils: IUtils, pluginName: string, action: string, args: Array<string>){
+        console.log(args)
         let curServices: {[service: string]: Function} = {} 
         this.services.forEach((service: {[service: string]: Function})=>{
             let keys = Object.keys(service)
@@ -23,13 +19,13 @@ export default class Plugin {
             "-h": this.help
         }
         if(this.services[action]){
-            return await this.services[action](args);
+            return await this.services[action](utils, args);
         } else {
-            this.utils.error(`Ação ${action} não encontrada na classe ${pluginName}`);
+            utils.error(`Ação ${action} não encontrada na classe ${pluginName}`);
         }
     }
 
-    help(args: Array<string>){
+    help(utils: IUtils){
 
     }
    

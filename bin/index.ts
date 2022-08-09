@@ -27,6 +27,7 @@ import { SETTINGS, SETTINGS_FOLDER } from "./Consts";
         utils.message(`
         Tudo pronto, agora podemos executar seus comandos da melhor forma
         `);
+        process.exit(0);
     }
     const args = <Array<string>>process.argv.slice(2);
     args[0] = args[0] ? args[0].toLowerCase() : "";
@@ -76,13 +77,14 @@ import { SETTINGS, SETTINGS_FOLDER } from "./Consts";
             let command = dir[dir.length-1];
             const plugin = await import(`${SETTINGS_FOLDER}/Plugins/${command}/${command}`);
             if (args.length > 1){
-                await new plugin.default(utils).controller(
+                await new plugin.default().controller(
+                    utils,
                     command,
                     args.slice(1)[0],
                     args.slice(2)
                 );
             } else {
-                await new plugin.default(utils).help();
+                await new plugin.default().help(utils);
             }
         } else {
             utils.error(`
