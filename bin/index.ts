@@ -6,21 +6,22 @@ import Config from "./Config";
 import { SETTINGS } from "./Consts";
 
 (async function () {
+    let utils = new Utils();
     if (!fs.existsSync(SETTINGS)) {
-        Utils.clear();
-        Utils.warning(`
+        utils.clear();
+        utils.warning(`
         Por favor, antes de prosseguir, faça suas configurações básicas
         `);
         await new Config().init([], true);
-        Utils.message(`
+        utils.message(`
         Tudo pronto, agora podemos executar seus comandos da melhor forma
         `);
     }
     const args = <Array<string>>process.argv.slice(2);
     args[0] = args[0] ? args[0].toLowerCase() : "";
     if (args[0] === "") {
-        Utils.clear();
-        Utils.message(`
+        utils.clear();
+        utils.message(`
         O myta (My Terminal Assistent) é um assistente para o terminal, que ajuda a executar comandos no sistema operacional.
         Ele possui vários comandos, que podem ser executados de forma rápida e fácil.
         Para executar um comando, basta digitar:
@@ -55,15 +56,21 @@ import { SETTINGS } from "./Consts";
         }
         process.exit(0);
     }
-    let plugins = await Utils.exec(`ls "${process.cwd()}/bin/Plugins"`);
+    let isDev = false;
+    let plugins;
+    if(!isDev){
+        plugins = await utils.exec(`ls /usr/share/myta/Plugins"`);
+    } else {
+        plugins = await utils.exec(`ls "${process.cwd()}/bin/Plugins"`);
+    }
     let Plugins = plugins.stdout.split("\n");
     if (Plugins.length > 0) {
         let command = Plugins.find((plugin) =>
             plugin.toLowerCase().includes(args[0])
         );
         if (command) {
-            const plugin = await import(`./Plugins/${command}/${command}`);
-            if (args.length > 1) {
+            const plugin = await import(`/usr/share/myta/Plugins/${command}/${command}`);
+            if (args.length > 1){
                 await new plugin.default().controller(
                     command,
                     args.slice(1)[0],
@@ -73,12 +80,12 @@ import { SETTINGS } from "./Consts";
                 await new plugin.default().help();
             }
         } else {
-            Utils.error(`
+            utils.error(`
             Comando ${args[0]} não encontrado
             `);
         }
     } else {
-        Utils.error(`
+        utils.error(`
         Houve um erro ao carregar a lista de plugins
         `);
     }
