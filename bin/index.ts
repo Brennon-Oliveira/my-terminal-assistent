@@ -5,7 +5,7 @@ import { SETTINGS, SETTINGS_FOLDER } from "./Consts";
 
 (async function () {
     let utils = new Utils();
-    let isDev = false;
+    let isDev = true;
     let isFirstProdTime = false;
     let plugins;
     if(!isDev){
@@ -70,12 +70,19 @@ import { SETTINGS, SETTINGS_FOLDER } from "./Consts";
     }
     let Plugins = plugins.stdout.split("\n");
     if (Plugins.length > 0) {
-        let dir = Plugins.find((plugin) =>
-            plugin.toLowerCase().includes(args[0])
+        let dir = Plugins.find((plugin) =>{
+            let pluginItems = plugin.split("/")
+            return pluginItems[pluginItems.length-1].toLowerCase().includes(args[0])
+        }
         )?.split("/");
         if (dir) {
             let command = dir[dir.length-1];
-            const plugin = await import(`${SETTINGS_FOLDER}/Plugins/${command}/${command}`);
+            let plugin: any;
+            if(!isDev){
+                plugin = await import(`${SETTINGS_FOLDER}/Plugins/${command}/${command}`);
+            } else {
+                plugin = await import(`./Plugins/${command}/${command}`);
+            }
             if (args.length > 1){
                 await new plugin.default().controller(
                     utils,
