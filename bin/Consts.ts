@@ -1,4 +1,7 @@
+import os from "os"
 
-export const SETTINGS_FOLDER = `~/.myta`;
-export const SETTINGS = `~/.myta/settings.json`;
-export const LOCAL_STORAGE = `~/.myta/localStorage.json`;
+const homedir = os.userInfo().homedir
+
+export const SETTINGS_FOLDER = `${homedir}/.myta`;
+export const SETTINGS = `${homedir}/.myta/settings.json`;
+export const LOCAL_STORAGE = `${homedir}/.myta/localStorage.json`;

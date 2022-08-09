@@ -273,7 +273,7 @@ class Utils extends IUtils {
 
     async getSettings(): Promise<{[keys: string]: string}>{
         const settingsFile = <unknown> await fsPromises.readFile(SETTINGS);
-        let settings = JSON.parse(<string>settingsFile)
+        let settings = JSON.parse(<string> settingsFile)
         return settings
     }
 

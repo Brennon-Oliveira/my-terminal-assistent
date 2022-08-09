@@ -3,6 +3,7 @@ import fs from "fs"
 import { SETTINGS, SETTINGS_FOLDER, LOCAL_STORAGE } from "./Consts";
 import IUtils from "./Plugins/Interfaces/IUtils.interface";
 const fsPromises = fs.promises;
+const os = require("os");
 // const {message, clear, error, success, warning, question, translate, help} = new Utils();
 
 class Config {
