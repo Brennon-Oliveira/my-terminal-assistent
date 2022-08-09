@@ -2,7 +2,7 @@
 
 
 ## Download
-Primeiro é necessário a instalação do [ts-node](https://github.com/TypeStrong/ts-node)
+Primeiro é necessário a instalação do [ts-node](https://github.com/TypeStrong/ts-node). Para verificar, execute `ts-node`.
 
 * Para instalar o MyTA, basta baixar e instalar [MyTA 1.0.0](https://github.com/Brennon-Oliveira/my-terminal-assistent/raw/main/myta_1.0.0_all.deb). Então já pode instalar o programa
 
