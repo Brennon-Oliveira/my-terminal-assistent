@@ -6,9 +6,8 @@ Primeiro é necessário a instalação do [ts-node](https://github.com/TypeStron
 Caso possua o npm instalado, pode apenas executar `npm i -g ts-node`
 Para verificar, execute `ts-node --version`.
 
-* Para instalar o MyTA, basta baixar e instalar [MyTA 1.1.3](https://drive.google.com/file/d/1c6Ai0uNKmCGbaOhpIEwoPRtZhlW7t5N5/view?usp=sharing). Então já pode instalar o programa
+* Para instalar o MyTA, basta baixar e instalar [MyTA](https://github.com/Brennon-Oliveira/my-terminal-assistent/releases/tag/Versions/latest) em sua última versão. Então já pode instalar o programa
 
-* Caso esteja usando wsl ou alguma distro remote, pode executar `wget https://download1319.mediafire.com/9ypeaogmgnwg/j9pg4mjwugcwkj6/myta_1.0.0_all.deb .`
 Então pode rodar `sudo apt install ./seu_aquivo.deb`
 
 Após instalar, execute `sudo ln -s $(which ts-node) /usr/share/myta/app/ts-node` para anexar o ts-node no programa.
