@@ -18,10 +18,15 @@ export default class Plugin {
             "-h": this.help
         }
         if(this.services[action]){
+            await this.default(utils);
             return await this.services[action](utils, args);
         } else {
             utils.error(`Ação ${action} não encontrada na classe ${pluginName}`);
         }
+    }
+
+    async default(utils: IUtils){
+
     }
 
     help(utils: IUtils){
