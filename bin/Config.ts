@@ -1,6 +1,6 @@
 import Utils from "./Utils";
 import fs from "fs"
-import { SETTINGS, SETTINGS_FOLDER, LOCAL_STORAGE } from "./Consts";
+import { SETTINGS, SETTINGS_FOLDER, LOCAL_STORAGE } from "./Plugins/Consts";
 import IUtils from "./Plugins/Interfaces/IUtils.interface";
 const fsPromises = fs.promises;
 const os = require("os");
@@ -107,16 +107,11 @@ class Config {
                     }
                 }
             } while(!validEmail)
-
-             defaultBranchNameTemplate = await this.utils.question(defaultBranchNameTemplateQuestion, ["{branch}", "{type}-{branch}"], true)
-             defaultCommitTemplate = await this.utils.question(defaultCommitTemplateQuestion, ["{branch} - {type}: {message}", "{type}: {branch} - {message}", "{type}: {message}"], true)
             
             let isCorrectInput = await this.utils.question(`
             As informações obtidas foram:
                 Name: ${name}
                 Email: ${email}
-                DefaultBranchNameTemplate: ${defaultBranchNameTemplate}
-                DefaultCommitTemplate: ${defaultCommitTemplate}
             Está correto?
             `, ["S", "N"])
 
@@ -129,15 +124,11 @@ class Config {
             settings = oldSettings
             settings.name = name;
             settings.email = email;
-            settings.defaultBranchNameTemplate = defaultBranchNameTemplate;
-            settings.defaultCommitTemplate = defaultCommitTemplate;
             this.utils.success("Usuário atualizado com sucesso!")
         } else {
             settings = {
                 name,
                 email,
-                defaultBranchNameTemplate,
-                defaultCommitTemplate
             }
             this.utils.success("Usuário configurado com sucesso!")
         }

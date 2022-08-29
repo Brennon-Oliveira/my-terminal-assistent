@@ -9,7 +9,7 @@ import colors from "colors/safe.js";
 import TranslatedWords from './TranslatedWord';
 import fs from "fs"
 const fsPromises = fs.promises;
-import { SETTINGS, LOCAL_STORAGE } from "./Consts";
+import { SETTINGS, LOCAL_STORAGE } from "./Plugins/Consts";
 import IUtils, { flags } from './Plugins/Interfaces/IUtils.interface';
 
 class Utils extends IUtils {

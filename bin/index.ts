@@ -1,7 +1,7 @@
 import fs from "fs";
 import Utils from "./Utils";
 import Config from "./Config";
-import { SETTINGS, SETTINGS_FOLDER } from "./Consts";
+import { SETTINGS, SETTINGS_FOLDER } from "./Plugins/Consts";
 
 (async function () {
     let utils = new Utils();
