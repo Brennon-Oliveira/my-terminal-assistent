@@ -2,14 +2,15 @@
   "name": "My-Terminal-Assistent",
   "version": "1.0.0",
   "description": "Assistente para terminal",
-  "main": "bin/index.js",
+  "main": "bin/index.ts",
   "bin": {
-    "myta": "bin/index.js",
+    "myta": "bin/index.ts",
     "build": "node-deb -- ."
   },
   "scripts": {
     "start": "node .",
     "debug": "node --inspect -r ts-node/register bin/index",
+    "build": "node-deb -- .",
     "test_pull": "node . git pull -s",
     "test_commit": "node . git commit -aup -t 'Feat' -m 'Apagando comentario'"
   },
@@ -24,13 +25,12 @@
   },
   "homepage": "https://github.com/Brennon-Oliveira/my-terminal-assistent#readme",
   "dependencies": {
+    "@types/colors": "^1.2.1",
     "child_process": "^1.0.2",
     "colors": "^1.4.0",
     "outdent": "^0.8.0",
     "ts-node": "^10.9.1",
-    "typescript": "^4.7.4",
-    "@types/colors": "^1.2.1",
-    "@types/node": "^18.6.5"
+    "typescript": "^4.7.4"
   },
   "node_deb": {
     "init": "systemd",
@@ -39,5 +39,8 @@
     "entrypoints": {
       "daemon": "ts-node /usr/share/myta/app/bin/index.ts"
     }
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.13"
   }
 }

@@ -5,19 +5,33 @@ import Plugin from '../Plugin';
 @Commands([
     "add",
     "remove",
-    "list"
+    "list",
+    "update",
 ])
 export default class Plugins extends Plugin {
     
     async add(utils: IUtils, args: Array<string>){
-        let {flags, finalArgs} = utils.getFlags(args, {paramsFlag: ["r","f"]})
+        let {flags, finalArgs} = utils.getFlags(args, {paramsFlag: ["r"]})
         
         if(finalArgs.length < 1){
             utils.error("Nome do plugin precisa ser informado", true);
         }
 
+        let unavailablePlugin = "O plugin informado não existe na lista oficial";
         let pluginName = finalArgs[0].charAt(0).toUpperCase() + finalArgs[0].slice(1);
-        await utils.exec("git clone https://github.com/Brennon-Oliveira/myta-official-plugins.git ~/myta-plugins");
+        let repository = "https://github.com/Brennon-Oliveira/myta-official-plugins.git";
+        if(flags.r){
+            const confirmExternalPlugin = await utils.question(
+                "Esse plugin não será baixado do repositório oficial, tem certeza que deseja prosseguir?",
+                ["s", "n"]
+            )
+            if(confirmExternalPlugin == "n"){
+                utils.error("Processo de instalação do plugin cancelado!", true);
+            }
+            unavailablePlugin = "O plugin informado não foi encontrado";
+            repository = flags.r as string;
+        }
+        await utils.exec(`git clone ${repository} ~/myta-plugins`);
 
         let pluginLs = await utils.exec(`ls ~/myta-plugins/${pluginName}`);
         
@@ -33,12 +47,12 @@ export default class Plugins extends Plugin {
             await utils.exec("sudo rm -rf ~/myta-plugins")
             utils.message(`Plugin "${pluginName}" adicionado com sucesso`)
         } else{
-            utils.error("O plugin informado não existe na lista oficial", true);
+            utils.error(unavailablePlugin, true);
         }
     }
 
     async remove(utils: IUtils, args: Array<string>){
-        let {flags, finalArgs} = utils.getFlags(args, {paramsFlag: ["r","f"]})
+        let {flags, finalArgs} = utils.getFlags(args, {});
         
         if(finalArgs.length < 1){
             utils.error("Nome do plugin precisa ser informado", true);
@@ -70,15 +84,37 @@ export default class Plugins extends Plugin {
         utils.success(message)
     }
 
+    async update(utils: IUtils, args: Array<string>){
+        await this.remove(utils, args);
+        await this.add(utils, args);
+        utils.success("Plugin atualizado!");
+    }
+    
     async help(utils: IUtils) {
         utils.help("Plugins", [
             {
                 name: "add {Plugin Name}",
-                description: "Adiciona um novo plugin"
+                description: "Adiciona um novo plugin",
+                flags: [
+                    {
+                        name: "r {Repository}",
+                        description: "Importa o plugin de um repositório externo"
+                    }
+                ]
             },
             {
                 name: "remove {Plugin Name}",
                 description: "Remove o plugin escolhido"
+            },
+            {
+                name: "update {Plugin Name}",
+                description: "Atualiza um plugin instalado",
+                flags: [
+                    {
+                        name: "r {Repository}",
+                        description: "Busca atualização do plugin em um repositório externo"
+                    }
+                ]
             },
             {
                 name: "list",
@@ -86,5 +122,6 @@ export default class Plugins extends Plugin {
             }
         ])  
     }
+
 
 }
