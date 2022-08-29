@@ -19,7 +19,8 @@ export default class Plugin {
         }
         if(this.services[action]){
             await this.default(utils);
-            return await this.services[action](utils, args);
+            const service = this.services[action].bind(this);
+            return await service(utils, args);
         } else {
             utils.error(`Ação ${action} não encontrada na classe ${pluginName}`);
         }
