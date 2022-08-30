@@ -5,7 +5,7 @@ import { SETTINGS, SETTINGS_FOLDER } from "./Plugins/Consts";
 
 (async function () {
     let utils = new Utils();
-    let isDev = false;
+    let isDev = true;
     let isFirstProdTime = false;
     let plugins;
     if(!isDev){
